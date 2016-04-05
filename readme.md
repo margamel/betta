@@ -15,6 +15,8 @@ Commands
 
 
 Todo:
-	
+
+* Check whether user has a bank account so it doesn't crash #CURRENTLY IT DIES IF YOU DON'T HAVE ONE.
+* Write a proper second todo thing here
 * Add commands for bank system
 * Add specific command help. E.g. -=help slot
