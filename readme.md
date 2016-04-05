@@ -10,7 +10,7 @@ Commands
 * Echo
 * Help
 * Slot
-* Bank [register, balance, xfer](almost)
+* Bank {register, balance, xfer}(almost)
 * Payday (almost)
 
 
