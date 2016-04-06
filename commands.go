@@ -15,8 +15,7 @@ var paydayTimes = make(map[string]time.Time)
 var slotTimes = make(map[string]time.Time)
 
 func makeBank(id string) {
-	os.Mkdir("bank/"+id, 644) //make their bank directory
-	//putMoney(id, 100)         //it only happens once, so free moneyyyyyyyyy
+	os.Mkdir("bank/"+id, 644)                                                        //make their bank directory
 	err := ioutil.WriteFile("bank/"+id+"/money.txt", []byte(strconv.Itoa(100)), 644) //try to deposit money into their account
 	if err != nil {
 		panic(err)
@@ -80,6 +79,7 @@ func takeMoney(id string, dolla int) {
 	}
 }
 func givepayday(id string) string {
+
 	lastTime, ok := paydayTimes[id]
 	if !ok || time.Since(lastTime).Minutes() >= 5 {
 		startdolla := getMoney(id)
