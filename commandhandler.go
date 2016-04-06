@@ -38,7 +38,7 @@ func (c *CommandHelp) Run(s *discordgo.Session, m *discordgo.Message, split []st
 			helpmsg += fmt.Sprintf("%v | %10v\n", cmd.Base(), cmd.Help(false))
 
 		}
-		s.ChannelMessageSend(m.ChannelID, helpmsg)
+		sendm(m.ChannelID, helpmsg)
 	}
 }
 func (c *CommandHelp) Help(specific bool) string {
@@ -52,7 +52,13 @@ func (c *CommandEcho) Base() string { return "echo" }
 func (c *CommandEcho) Run(s *discordgo.Session, m *discordgo.Message, split []string, isPrivate bool) {
 	// Echo what was sent to us
 	msg := strings.TrimPrefix(m.Content, "-=echo ")
-	s.ChannelMessageSend(m.ChannelID, msg)
+	switch m.Author.ID {
+	case "160718675689603072":
+		sendm(m.ChannelID, "C'mon now, I serve you, not myself. I'm not worthy of using this command.")
+	default:
+		sendm(m.ChannelID, msg)
+	}
+
 }
 
 func (c *CommandEcho) Help(specific bool) string {
@@ -76,22 +82,27 @@ func (c *CommandSlot) Run(s *discordgo.Session, m *discordgo.Message, split []st
 		if err != nil {
 			sendm(m.ChannelID, "We couldn't convert that into an int.")
 		}
-		isWinner, pot, msg := slots(bet, m.Author.ID)
-		if isPrivate == true { //Check if it's a private message, if so we'll respond differently.
-			sendm(m.ChannelID, msg)
-			if isWinner == true {
-				sendm("vegas", fmt.Sprintf("<@%v> just WON a %v!", m.Author.ID, pot))
+		if bet > 5 && bet <= getMoney(m.Author.ID) {
+			isWinner, pot, msg := slots(bet, m.Author.ID)
+			if isPrivate == true { //Check if it's a private message, if so we'll respond differently.
+				sendm(m.ChannelID, msg)
+				if isWinner == true {
+					sendm("vegas", fmt.Sprintf("<@%v> just WON a %v!", m.Author.ID, pot))
+				}
+			} else {
+				if isWinner == false {
+					sendm("vegas", fmt.Sprintf("<@%v> just lost a %v bet.", m.Author.ID, pot))
+				} else {
+					sendm("vegas", fmt.Sprintf("<@%v> just WON %v!", m.Author.ID, pot))
+				}
 			}
 		} else {
-			if isWinner == false {
-				sendm("vegas", fmt.Sprintf("<@%v> just lost a %v bet.", m.Author.ID, pot))
-			} else {
-				sendm("vegas", fmt.Sprintf("<@%v> just WON %v!", m.Author.ID, pot))
-			}
+			sendm(m.ChannelID, "Your bet needs to be between 10 and your wealth.")
 		}
+
 	default:
 		//More than we accept.
-		sendm(m.ChannelID, "Invalid request. Looking for; -=slot X |where X is an int above 5.")
+		sendm(m.ChannelID, "Invalid request. Looking for; -=slot X |where X is an int above 10.")
 	}
 }
 func (c *CommandSlot) Help(specific bool) string {
@@ -131,28 +142,13 @@ func (c *CommandBank) Run(s *discordgo.Session, m *discordgo.Message, split []st
 			//lets check if the 3rd argument can be casted to an int.
 			//Yes- they either put in random numbers, or they put in the id number. We need to check for both and handle it.
 			//No - they either put a random word, or they @mentioned them. We need to check for both and handle it.
-			_, err := strconv.Atoi(split[2])
-			if err != nil { //We couldn't cast to int so we're going to see if they @mentioned them.
-				target := strings.TrimPrefix(split[2], "<@")
-				target = strings.TrimSuffix(target, ">")
-				dolla, err := strconv.Atoi(split[3])
-				if err != nil {
-					//no fucking clue mate.
-					panic(err)
-				}
 
-				_, err1 := strconv.Atoi(target)
-				if err1 != nil { //we still can't cast to int. This means it was just a random word all along.
-					sendm(m.ChannelID, "We were expecting a target for the transfer. Either their ID or @mention.")
-				} else {
-					//We can cast to int now, where before we couldn't. This means that it was a format mention all along.
-					sendm(m.ChannelID, bankX(m.Author.ID, target, dolla))
-				}
-
-			} else {
-				//we could cast to int so it was either random numbers, or the ID
-				switch len(split[3]) {
-				case 18: //95% sure this is going to be the ID so we can cast to string and call the transfer.
+			switch m.Author.ID { // Fucking ashe making me protect against stupid shit all the time.
+			case "160718675689603072": //But yeah, this means they can still play with the bots money, but not touch it.
+				sendm(m.ChannelID, "You can make me money, but you can't make me give it to you ;)")
+			default:
+				_, err := strconv.Atoi(split[2])
+				if err != nil { //We couldn't cast to int so we're going to see if they @mentioned them.
 					target := strings.TrimPrefix(split[2], "<@")
 					target = strings.TrimSuffix(target, ">")
 					dolla, err := strconv.Atoi(split[3])
@@ -160,10 +156,32 @@ func (c *CommandBank) Run(s *discordgo.Session, m *discordgo.Message, split []st
 						//no fucking clue mate.
 						panic(err)
 					}
-					sendm(m.ChannelID, bankX(m.Author.ID, target, dolla))
-				default:
+
+					_, err1 := strconv.Atoi(target)
+					if err1 != nil { //we still can't cast to int. This means it was just a random word all along.
+						sendm(m.ChannelID, "We were expecting a target for the transfer. Either their ID or @mention.")
+					} else {
+						//We can cast to int now, where before we couldn't. This means that it was a format mention all along.
+						sendm(m.ChannelID, bankX(m.Author.ID, target, dolla))
+					}
+
+				} else {
+					//we could cast to int so it was either random numbers, or the ID
+					switch len(split[3]) {
+					case 18: //95% sure this is going to be the ID so we can cast to string and call the transfer.
+						target := strings.TrimPrefix(split[2], "<@")
+						target = strings.TrimSuffix(target, ">")
+						dolla, err := strconv.Atoi(split[3])
+						if err != nil {
+							//no fucking clue mate.
+							panic(err)
+						}
+						sendm(m.ChannelID, bankX(m.Author.ID, target, dolla))
+					default:
+					}
 				}
 			}
+
 		default:
 		}
 	default:
@@ -189,14 +207,15 @@ var commands = []Command{
 }
 
 func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
-	fmt.Printf("%20s %20s %20s > %s |%v|%v|\n", m.Message.ChannelID, time.Now().Format(time.Stamp), m.Author.ID, m.Content, len(m.Content), len(strings.Split(m.Content, " ")))
+	chn, err := s.Channel(m.ChannelID)
+	fmt.Printf("%20s %20s %20s > %s |%v|%v|\n", chn.Name, time.Now().Format(time.Stamp), m.Author.ID, m.Content, len(m.Content), len(strings.Split(m.Content, " ")))
 	if strings.HasPrefix(m.Content, prefix) {
 		if hasBank(m.Author.ID) == false { //Just go ahead and create accounts for everyone. I mean, why not. Saves the heartache of bankchecking later on.
 			makeBank(m.Author.ID)
 		}
 		presplit := strings.TrimPrefix(m.Content, "-=")
 		split := strings.Split(presplit, " ")
-		chn, err := s.Channel(m.ChannelID)
+
 		if err != nil {
 			panic(err)
 		}

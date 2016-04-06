@@ -96,12 +96,14 @@ func givepayday(id string) string {
 	}
 }
 func sendm(chn, msg string) {
-	chnp, err := ds.Channel(chn)
+	chnp, _ := ds.Channel(chn) //We might need this error, but I can't think why atm. Just be warned.
 	switch chn {
 	case "vegas":
 		ds.ChannelMessageSend("160762694549372929", msg)
+	case "160762694549372929":
+		ds.ChannelMessageSend("160762694549372929", msg)
 	default:
-		if chnp.IsPrivate {
+		if chnp.IsPrivate == true {
 			ds.ChannelMessageSend(chn, msg)
 		} else {
 			// Need to figure a better way of handling this.
