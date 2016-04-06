@@ -79,11 +79,14 @@ func (c *CommandSlot) Run(s *discordgo.Session, m *discordgo.Message, split []st
 		isWinner, pot, msg := slots(bet, m.Author.ID)
 		if isPrivate == true { //Check if it's a private message, if so we'll respond differently.
 			sendm(m.ChannelID, msg)
+			if isWinner == true {
+				sendm("vegas", fmt.Sprintf("<@%v> just WON a %v!", m.Author.ID, pot))
+			}
 		} else {
 			if isWinner == false {
 				sendm("vegas", fmt.Sprintf("<@%v> just lost a %v bet.", m.Author.ID, pot))
 			} else {
-				sendm("vegas", fmt.Sprintf("<@%v> just WON %v", m.Author.ID, pot))
+				sendm("vegas", fmt.Sprintf("<@%v> just WON %v!", m.Author.ID, pot))
 			}
 		}
 	default:

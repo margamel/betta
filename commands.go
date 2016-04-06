@@ -96,11 +96,22 @@ func givepayday(id string) string {
 	}
 }
 func sendm(chn, msg string) {
+	chnp, err := ds.Channel(chn)
 	switch chn {
 	case "vegas":
-		ds.ChannelMessageSend("163307740377120768", msg)
+		ds.ChannelMessageSend("160762694549372929", msg)
 	default:
-		ds.ChannelMessageSend(chn, msg)
+		if chnp.IsPrivate {
+			ds.ChannelMessageSend(chn, msg)
+		} else {
+			// Need to figure a better way of handling this.
+			// Basically, they're calling the bot from a random
+			// channel but we don't have access to their ID or
+			// anything in this function just yet and I don't
+			// want to leap to anything right now otherwise
+			// it might turn ugly. Very very very very ugly.
+		}
+
 	}
 
 }
