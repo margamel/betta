@@ -24,12 +24,22 @@ func (c *CommandHelp) Run(s *discordgo.Session, m *discordgo.Message, split []st
 	// run this help command
 	// You can loop over all the commands in the commands slice and call "Help()" on each of them
 	// To list help on all commands here for example, or a specific one if we provided one
-	helpmsg := "We have these commands; \n"
-	for _, cmd := range commands {
-		helpmsg += fmt.Sprintf("%v | %10v\n", cmd.Base(), cmd.Help(false))
+	switch len(split) {
+	case 2: //-=help CMD?
+		for _, cmd := range commands {
+			if split[1] == cmd.Base() {
+				helpmsg := cmd.Help(true)
+				sendm(m.ChannelID, helpmsg)
+			}
+		}
+	default:
+		helpmsg := "We have these commands; \n"
+		for _, cmd := range commands {
+			helpmsg += fmt.Sprintf("%v | %10v\n", cmd.Base(), cmd.Help(false))
 
+		}
+		s.ChannelMessageSend(m.ChannelID, helpmsg)
 	}
-	s.ChannelMessageSend(m.ChannelID, helpmsg)
 }
 func (c *CommandHelp) Help(specific bool) string {
 	return "You stupid i smart"
@@ -84,9 +94,9 @@ func (c *CommandSlot) Run(s *discordgo.Session, m *discordgo.Message, split []st
 func (c *CommandSlot) Help(specific bool) string {
 	switch specific {
 	case true:
-		return "The specific bool is true so we return a much lengthier string. This will be intended to list and explain all subcommands it may have"
+		return "Risk your wealth on the slots, -=slot 500 if you're feeling brave enough."
 	default:
-		return "Wasn't called specifically so we return a breif description."
+		return "Play the slots."
 	}
 
 }
@@ -155,15 +165,15 @@ func (c *CommandBank) Run(s *discordgo.Session, m *discordgo.Message, split []st
 		}
 	default:
 		//More than we accept.
-		sendm(m.ChannelID, "Invalid request. Looking for; -=slot X |where X is an int above 5.")
+		sendm(m.ChannelID, "Invalid request. Feel free to ask us for help should you need it.")
 	}
 }
 func (c *CommandBank) Help(specific bool) string {
 	switch specific {
 	case true:
-		return "The specific bool is true so we return a much lengthier string. This will be intended to list and explain all subcommands it may have"
+		return "Welcome to the bank. We have a few subcommands for you to use. xfer and balance come to mind. \n '-=bank xfer @Runi 100' gives my creator a tip of 100 dosh."
 	default:
-		return "Wasn't called specifically so we return a breif description."
+		return "Use the bank to hold, check, and transfer your money."
 	}
 }
 
