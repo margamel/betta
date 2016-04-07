@@ -198,12 +198,38 @@ func (c *CommandBank) Help(specific bool) string {
 	}
 }
 
+// Another command
+type CommandSuggest struct{}
+
+func (c *CommandSuggest) Base() string { return "suggest" }
+func (c *CommandSuggest) Run(s *discordgo.Session, m *discordgo.Message, split []string, isPrivate bool) {
+	// Echo what was sent to us
+	msg := strings.TrimPrefix(m.Content, "-=suggest ")
+	switch m.Author.ID {
+	case "160718675689603072":
+		sendm(m.ChannelID, "C'mon now, I serve you, not myself. I'm not worthy of using this command.")
+	default:
+		logSuggest(m.Author.ID, msg)
+	}
+
+}
+
+func (c *CommandSuggest) Help(specific bool) string {
+	switch specific {
+	case true:
+		return "Suggest games, commands, how you think the bot should work, what it should say. Anything you want that is bot related, suggest it."
+	default:
+		return "Suggest features that you would like to see implemented in the future."
+	}
+}
+
 // Add all commands to a slice here
 var commands = []Command{
 	&CommandHelp{},
 	&CommandEcho{},
 	&CommandSlot{},
 	&CommandBank{},
+	&CommandSuggest{},
 }
 
 func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {

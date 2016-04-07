@@ -14,6 +14,38 @@ import (
 var paydayTimes = make(map[string]time.Time)
 var slotTimes = make(map[string]time.Time)
 
+func logSuggest(id, msg string) {
+	if _, err := os.Stat("bank/" + id + "/ideas.txt"); os.IsNotExist(err) {
+		// path/to/whatever does not exist
+		err := ioutil.WriteFile("bank/"+id+"/ideas.txt", []byte("Start of suggestions;\r\n"), 644) //try to write to file.
+		if err != nil {
+			panic(err)
+		}
+		b, err := ioutil.ReadFile("bank/" + id + "/ideas.txt") //Get what's there so we don't overwrite
+		if err != nil {
+			panic(err)
+		}
+		s := string(b)
+		s += msg
+		err1 := ioutil.WriteFile("bank/"+id+"/ideas.txt", []byte(s+"\r\n"), 644) //try to write to file.
+		if err1 != nil {
+			panic(err1)
+		}
+	} else {
+		b, err := ioutil.ReadFile("bank/" + id + "/ideas.txt") //Get what's there so we don't overwrite
+		if err != nil {
+			panic(err)
+		}
+		s := string(b)
+		s += msg
+		err1 := ioutil.WriteFile("bank/"+id+"/ideas.txt", []byte(s+"\r\n"), 644) ///try to write to file.
+		if err1 != nil {
+			panic(err1)
+		}
+	}
+
+}
+
 func makeBank(id string) {
 	os.Mkdir("bank/"+id, 644)                                                        //make their bank directory
 	err := ioutil.WriteFile("bank/"+id+"/money.txt", []byte(strconv.Itoa(100)), 644) //try to deposit money into their account
@@ -116,6 +148,16 @@ func sendm(chn, msg string) {
 
 	}
 
+}
+
+func rotbyone(msg string) string {
+	split := strings.Split(msg, "")
+	rebuild := ""
+	for _, i := range split {
+		rebuild += split[i]
+	}
+	rebuild += split[0]
+	return rebuild
 }
 
 func slots(bet int, id string) (bool, int, string) {
