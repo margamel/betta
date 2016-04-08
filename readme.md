@@ -10,13 +10,11 @@ Commands
 * Echo
 * Help
 * Slot
-* Bank {register, balance, xfer}(almost)
-* Payday (almost)
+* Bank
+* Suggest
 
 
 Todo:
 
-* Check whether user has a bank account so it doesn't crash #CURRENTLY IT DIES IF YOU DON'T HAVE ONE.
-* Write a proper second todo thing here
-* Add commands for bank system
-* Add specific command help. E.g. -=help slot
+* 
+* Other games: acronym game, cipher game, 

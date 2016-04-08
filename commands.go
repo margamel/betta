@@ -105,7 +105,7 @@ func takeMoney(id string, dolla int) {
 	startmoney := getMoney(id)
 	startmoney -= dolla
 
-	err := ioutil.WriteFile("bank/"+id+"/money.txt", []byte(strconv.Itoa(startmoney)), 644) //try to deposit money into their account
+	err := ioutil.WriteFile("bank/"+id+"/money.txt", []byte(strconv.Itoa(startmoney)), 644) //try to take money from their account
 	if err != nil {
 		panic(err)
 	}
@@ -148,16 +148,6 @@ func sendm(chn, msg string) {
 
 	}
 
-}
-
-func rotbyone(msg string) string {
-	split := strings.Split(msg, "")
-	rebuild := ""
-	for _, i := range split {
-		rebuild += split[i]
-	}
-	rebuild += split[0]
-	return rebuild
 }
 
 func slots(bet int, id string) (bool, int, string) {
