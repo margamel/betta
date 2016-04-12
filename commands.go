@@ -227,3 +227,28 @@ func slots(bet int, id string) (bool, int, string) {
 	}
 	return won, pot, fmt.Sprintf("\n%s\n%s", msg, result)
 }
+
+//func newslots(bet int, id string) (bool, int, string) {
+//	pot := bet
+//	msg := ""
+//	won := false
+//	lreel := []string{":cherries:", ":four_leaf_clover:", ":octopus:", ":fire:", ":8ball:", ":keycap_ten:", ":zero:", ":snowflake:", ":tada:", ":heart:"}
+//	mreel := []string{":fire:", ":8ball:", ":keycap_ten:", ":zero:", ":snowflake:", ":tada:", ":heart:", ":cherries:", ":four_leaf_clover:", ":octopus:"}
+//	rreel := []string{":snowflake:", ":tada:", ":fire:", ":8ball:", ":keycap_ten:", ":zero:", ":cherries:", ":octopus:", ":heart:", ":four_leaf_clover:"}
+//
+//	midnum := []int{rand.Intn(len(lreel)), rand.Intn(len(mreel)), rand.Intn(len(rreel))}
+//
+//	toprow := []string{lreel[midnum[0]-1%len(lreel)], mreel[midnum[1]-1%len(mreel)], rreel[midnum[2]-1%len(rreel)]} //This is going to be out of range :c
+//	midrow := []string{lreel[midnum[0]], mreel[midnum[1]], rreel[midnum[2]]}
+//	botrow =: []string{lreel[midnum[0]+1%len(lreel)], mreel[midnum[1]+1%len(mreel)], rreel[midnum[2]+1%len(rreel)]} // This too. How do I wrap around? or is it possible?
+//
+//	msg += toprow[0] + " " + toprow[2] + " " + toprow[2] + "\n"
+//	msg += midrow[0] + " " + midrow[2] + " " + midrow[2] + "\n"
+//	msg += botrow[0] + " " + botrow[2] + " " + botrow[2] + "\n"
+//	msg += ""
+//
+//	if pot > bet { //If the pot is bigger than your bet, then you must have won something.
+//		won = true
+//	}
+//	return won, pot, fmt.Sprintf("\n%s\n Hopefully this worked.", msg)
+//}

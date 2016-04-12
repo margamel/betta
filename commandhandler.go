@@ -223,6 +223,71 @@ func (c *CommandSuggest) Help(specific bool) string {
 	}
 }
 
+type CommandMexicanwave struct{}
+
+func (c *CommandMexicanwave) Base() string { return "mexicanwave" }
+func (c *CommandMexicanwave) Run(s *discordgo.Session, m *discordgo.Message, split []string, isPrivate bool) {
+	switch m.Author.ID {
+	case "105661408393302016":
+		//¯\_(ツ)_/¯¯\_(ツ)_/¯¯\_(ツ)_/¯¯\_(ツ)_/¯¯\_(ツ)_/¯¯\_(ツ)_/¯¯\_(ツ)_/¯
+		frame := 1
+		frames := 0
+		wave := "¯\\(ツ)_/¯"
+		rest := "-__(ツ)__-"
+		outwave := rest + rest + rest + rest + wave
+		frame1 := wave + rest + rest + rest + rest
+		frame2 := rest + wave + rest + rest + rest
+		frame3 := rest + rest + wave + rest + rest
+		frame4 := rest + rest + rest + wave + rest
+		frame5 := rest + rest + rest + rest + wave
+
+		msg, _ := s.ChannelMessageSend("160762694549372929", "```"+outwave+"```")
+		ticker := time.NewTicker(time.Second * 2)
+		for {
+			select {
+			case <-ticker.C:
+				if frames < 5 {
+					frame++
+					frames++
+					if frame > 4 {
+						frame = 1
+					}
+					switch frame {
+					case 1:
+						outwave = frame1
+					case 2:
+						outwave = frame2
+					case 3:
+						outwave = frame3
+					case 4:
+						outwave = frame4
+					case 5:
+						outwave = frame5
+					default:
+						outwave = "Error, lol."
+					}
+					msg, _ = s.ChannelMessageEdit(msg.ChannelID, msg.ID, "```"+outwave+"```")
+				} else {
+					return
+				}
+			}
+		}
+	default:
+		s.ChannelMessageSend("160762694549372929", "```NO!```")
+
+	}
+
+}
+
+func (c *CommandMexicanwave) Help(specific bool) string {
+	switch specific {
+	case true:
+		return "I made this on a whim. It's not too good though since it rate limits faaaaaast."
+	default:
+		return "Do tha mexican waaaaAAAAAAaaaaVVVVVEeeeeee."
+	}
+}
+
 // Add all commands to a slice here
 var commands = []Command{
 	&CommandHelp{},
@@ -230,22 +295,27 @@ var commands = []Command{
 	&CommandSlot{},
 	&CommandBank{},
 	&CommandSuggest{},
+	&CommandMexicanwave{},
 }
 
 func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	chn, err := s.Channel(m.ChannelID)
+	if err != nil {
+		panic(err)
+	}
+	if m.Author.ID == "" { //sometimes the ID will be nil and then it just dies an inglorious death. Not sure why or what to really do about it.
+
+	}
 	fmt.Printf("%20s %20s %20s > %s |%v|%v|\n", chn.Name, time.Now().Format(time.Stamp), m.Author.ID, m.Content, len(m.Content), len(strings.Split(m.Content, " ")))
 	if strings.HasPrefix(m.Content, prefix) {
 		if hasBank(m.Author.ID) == false { //Just go ahead and create accounts for everyone. I mean, why not. Saves the heartache of bankchecking later on.
 			makeBank(m.Author.ID)
 		}
-		presplit := strings.TrimPrefix(m.Content, "-=")
-		split := strings.Split(presplit, " ")
 
-		if err != nil {
-			panic(err)
-		}
-		for _, cmd := range commands {
+		presplit := strings.TrimPrefix(m.Content, "-=") //clear the prefix before we split the string
+		split := strings.Split(presplit, " ")           //split the sting by the spaces.
+
+		for _, cmd := range commands { //Loop through the commands and run whichever command matches.
 			if split[0] == cmd.Base() {
 				cmd.Run(s, m.Message, split, chn.IsPrivate)
 			}
