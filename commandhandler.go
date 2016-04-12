@@ -288,6 +288,28 @@ func (c *CommandMexicanwave) Help(specific bool) string {
 	}
 }
 
+type CommandPayday struct{}
+
+func (c *CommandPayday) Base() string { return "payday" }
+func (c *CommandPayday) Run(s *discordgo.Session, m *discordgo.Message, split []string, isPrivate bool) {
+	switch isPrivate {
+	case true:
+		sendm(m.ChannelID, givepayday(m.Author.ID))
+	default:
+		givepayday(m.Author.ID)
+	}
+
+}
+
+func (c *CommandPayday) Help(specific bool) string {
+	switch specific {
+	case true:
+		return "Once every 5 mins you can get some free money. Try to gamble responsibly... LOL!"
+	default:
+		return "Free money every once in a while."
+	}
+}
+
 // Add all commands to a slice here
 var commands = []Command{
 	&CommandHelp{},
@@ -296,6 +318,7 @@ var commands = []Command{
 	&CommandBank{},
 	&CommandSuggest{},
 	&CommandMexicanwave{},
+	&CommandPayday{},
 }
 
 func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
