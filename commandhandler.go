@@ -125,9 +125,9 @@ func (c *CommandBank) Run(s *discordgo.Session, m *discordgo.Message, split []st
 	switch len(split) {
 	case 1:
 		//-=bank
-		sendm(m.ChannelID, "Try using the help command if you're not sure how to .")
+		sendm(m.ChannelID, "This isn't helpful, but '-=help bank' might be.")
 	case 2:
-		//-=bank register
+		//-=bank balance
 		switch split[1] {
 		case "balance":
 			sendm(m.ChannelID, fmt.Sprintf("You current account standing is: %v", getMoney(m.Author.ID)))
@@ -135,6 +135,22 @@ func (c *CommandBank) Run(s *discordgo.Session, m *discordgo.Message, split []st
 		default:
 			sendm(m.ChannelID, "Hmm, we didn't quite understand that one. Try something else?")
 		}
+	case 3:
+		//-=bank snoop @target
+		switch split[1] {
+		case "snoop":
+			target := strings.TrimPrefix(split[2], "<@")
+			target = strings.TrimSuffix(target, ">")
+			if strings.HasPrefix(target, "@") == true {
+				sendm(m.ChannelID, fmt.Sprintf("%v is not a valid user. Have they left the server?", target))
+			} else {
+				sendm(m.ChannelID, fmt.Sprintf("Their account balance is %v", getMoney(target)))
+			}
+
+		default:
+			sendm(m.ChannelID, "Hmm, we didn't quite understand that one. Try something else?")
+		}
+
 	case 4:
 		//-=bank xfer target money
 		switch split[1] {
@@ -192,7 +208,7 @@ func (c *CommandBank) Run(s *discordgo.Session, m *discordgo.Message, split []st
 func (c *CommandBank) Help(specific bool) string {
 	switch specific {
 	case true:
-		return "Welcome to the bank. We have a few subcommands for you to use. xfer and balance come to mind. \n '-=bank xfer @Runi 100' gives my creator a tip of 100 dosh."
+		return "Welcome to the bank. We have a few subcommands for you to use. xfer and balance come to mind. \n '-=bank xfer @Runi 100' gives my creator a tip of 100 dosh.\n ```-=bank balance | check your monies \n-=bank xfer @target £££ | Transfer £££ to @target \n-=bank snoop @target | See how deep @target's pockets are ```"
 	default:
 		return "Use the bank to hold, check, and transfer your money."
 	}
@@ -282,7 +298,7 @@ func (c *CommandMexicanwave) Run(s *discordgo.Session, m *discordgo.Message, spl
 func (c *CommandMexicanwave) Help(specific bool) string {
 	switch specific {
 	case true:
-		return "I made this on a whim. It's not too good though since it rate limits faaaaaast."
+		return "I made this on a whim. It's not too good though since it rate limits faaaaaast so only @Runi can use it."
 	default:
 		return "Do tha mexican waaaaAAAAAAaaaaVVVVVEeeeeee."
 	}
@@ -329,11 +345,13 @@ func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == "" { //sometimes the ID will be nil and then it just dies an inglorious death. Not sure why or what to really do about it.
 
 	}
-	fmt.Printf("%20s %20s %20s > %s |%v|%v|\n", chn.Name, time.Now().Format(time.Stamp), m.Author.ID, m.Content, len(m.Content), len(strings.Split(m.Content, " ")))
 	if strings.HasPrefix(m.Content, prefix) {
 		if hasBank(m.Author.ID) == false { //Just go ahead and create accounts for everyone. I mean, why not. Saves the heartache of bankchecking later on.
+			fmt.Printf("%v doesn't have a bank account. Lets make one for them now.", m.Author.Username)
 			makeBank(m.Author.ID)
 		}
+
+		fmt.Printf("%20s %20s %20s > %s |%v|%v|\n", chn.Name, time.Now().Format(time.Stamp), m.Author.ID, m.Content, len(m.Content), len(strings.Split(m.Content, " ")))
 
 		presplit := strings.TrimPrefix(m.Content, "-=") //clear the prefix before we split the string
 		split := strings.Split(presplit, " ")           //split the sting by the spaces.

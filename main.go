@@ -22,6 +22,11 @@ func main() {
 		fmt.Println(os.Args[0], " [username] [password]")
 		return
 	}
+	if _, err := os.Stat("bank/"); os.IsNotExist(err) {
+		// path/to/whatever does not exist
+		os.Mkdir("bank/", 644)
+		fmt.Println("Making bank directory for you.")
+	}
 
 	// Call the helper function New() passing username and password command
 	// line arguments. This returns a new Discord session, authenticates,
