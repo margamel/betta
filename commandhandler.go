@@ -326,6 +326,129 @@ func (c *CommandPayday) Help(specific bool) string {
 	}
 }
 
+type CommandLeaderboard struct{}
+
+func (c *CommandLeaderboard) Base() string { return "leaderboard" }
+func (c *CommandLeaderboard) Run(s *discordgo.Session, m *discordgo.Message, split []string, isPrivate bool) {
+	switch isPrivate {
+	case true:
+		sendm(m.ChannelID, top10(s, m))
+	default:
+		sendm(m.ChannelID, top10(s, m))
+	}
+
+}
+
+func (c *CommandLeaderboard) Help(specific bool) string {
+	switch specific {
+	case true:
+		return "The bigger they are, the harder they fall. Keep your eyes on your enemies!"
+	default:
+		return "See the top10 moniest people on the server"
+	}
+}
+
+type CommandAdminu struct{}
+
+func (c *CommandAdminu) Base() string { return "=" }
+func (c *CommandAdminu) Run(s *discordgo.Session, m *discordgo.Message, split []string, isPrivate bool) {
+	if m.Author.ID != "105661408393302016" {
+
+	} else {
+
+		switch len(split) {
+		case 4:
+			//-==mm @name amount
+
+			switch split[1] {
+			case "mm":
+				switch strings.HasPrefix(split[2], "<") {
+				case true:
+					target := strings.TrimPrefix(split[2], "<@")
+					target = strings.TrimSuffix(target, ">")
+
+					msplit := strings.Split(split[3], "")
+					switch msplit[0] {
+					case "+":
+						//check if number then add
+						dolla, err := strconv.Atoi(strings.TrimPrefix(split[3], "+"))
+						if err != nil {
+							//no fucking clue mate.
+							panic(err)
+						}
+						putMoney(target, dolla)
+
+					case "-":
+						//check if number then take
+						dolla, err := strconv.Atoi(strings.TrimPrefix(split[3], "-"))
+						if err != nil {
+							//no fucking clue mate.
+							panic(err)
+						}
+						takeMoney(target, dolla)
+					default:
+						//check if number then set
+						dolla, err := strconv.Atoi(split[3])
+						if err != nil {
+							//no fucking clue mate.
+							panic(err)
+						}
+						setmoney(dolla, target)
+					}
+				default:
+				}
+			default:
+				//could be using a command other than mm(money molest)
+
+			}
+
+			switch strings.HasPrefix(split[1], "<") {
+			case true:
+				target := strings.TrimPrefix(split[2], "<@")
+				target = strings.TrimSuffix(target, ">")
+
+				msplit := strings.Split(split[2], "")
+				switch msplit[0] {
+				case "+":
+					//check if number then add
+					dolla, err := strconv.Atoi(split[2])
+					if err != nil {
+						//no fucking clue mate.
+						panic(err)
+					}
+					putMoney(target, dolla)
+
+				case "-":
+					//check if number then take
+					//check if number then add
+					dolla, err := strconv.Atoi(split[2])
+					if err != nil {
+						//no fucking clue mate.
+						panic(err)
+					}
+					takeMoney(target, dolla)
+				default:
+					//check if number then set
+				}
+			default:
+			}
+
+		default:
+			//
+		}
+	}
+
+}
+
+func (c *CommandAdminu) Help(specific bool) string {
+	switch specific {
+	case true:
+		return "Admin commands: -== mm @name {+/-/nil}amount. -== mm @jonas747 -300 takes 300 monies away, +300 would add, and 300 would set it to 300."
+	default:
+		return "="
+	}
+}
+
 // Add all commands to a slice here
 var commands = []Command{
 	&CommandHelp{},
@@ -335,6 +458,8 @@ var commands = []Command{
 	&CommandSuggest{},
 	&CommandMexicanwave{},
 	&CommandPayday{},
+	&CommandLeaderboard{},
+	&CommandAdminu{},
 }
 
 func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {

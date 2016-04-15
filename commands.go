@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/bwmarrin/discordgo"
 	"io/ioutil"
 	"math"
 	"math/rand"
@@ -252,3 +253,147 @@ func slots(bet int, id string) (bool, int, string) {
 //	}
 //	return won, pot, fmt.Sprintf("\n%s\n Hopefully this worked.", msg)
 //}
+
+func top10bad() string {
+	one, two, three, four, five, six, seven, eight, nine, ten := "", "", "", "", "", "", "", "", "", ""
+	onev, twov, threev, fourv, fivev, sixv, sevenv, eightv, ninev, tenv := 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	curr := ""
+	curv := 0
+
+	files, _ := ioutil.ReadDir("bank/")
+	for _, f := range files {
+		curr = f.Name()
+		curv = getMoney(f.Name())
+		if curv >= onev {
+			ten, tenv = nine, ninev
+			nine, ninev = eight, eightv
+			eight, eightv = seven, sevenv
+			seven, sevenv = six, sixv
+			six, sixv = five, fivev
+			five, fivev = four, fourv
+			four, fourv = three, threev
+			three, threev = two, twov
+			two, twov = one, onev
+			one, onev = curr, curv
+		} else if curv >= twov && curv < onev {
+			ten, tenv = nine, ninev
+			nine, ninev = eight, eightv
+			eight, eightv = seven, sevenv
+			seven, sevenv = six, sixv
+			six, sixv = five, fivev
+			five, fivev = four, fourv
+			four, fourv = three, threev
+			three, threev = two, twov
+			two, twov = curr, curv
+		} else if curv >= threev && curv < twov {
+			ten, tenv = nine, ninev
+			nine, ninev = eight, eightv
+			eight, eightv = seven, sevenv
+			seven, sevenv = six, sixv
+			six, sixv = five, fivev
+			five, fivev = four, fourv
+			four, fourv = three, threev
+			three, threev = curr, curv
+		} else if curv >= fourv && curv < threev {
+			ten, tenv = nine, ninev
+			nine, ninev = eight, eightv
+			eight, eightv = seven, sevenv
+			seven, sevenv = six, sixv
+			six, sixv = five, fivev
+			five, fivev = four, fourv
+			four, fourv = curr, curv
+		} else if curv >= fivev && curv < fourv {
+			ten, tenv = nine, ninev
+			nine, ninev = eight, eightv
+			eight, eightv = seven, sevenv
+			seven, sevenv = six, sixv
+			six, sixv = five, fivev
+			five, fivev = curr, curv
+		} else if curv >= sixv && curv < fivev {
+			ten, tenv = nine, ninev
+			nine, ninev = eight, eightv
+			eight, eightv = seven, sevenv
+			seven, sevenv = six, sixv
+			six, sixv = curr, curv
+		} else if curv >= sevenv && curv < sixv {
+			ten, tenv = nine, ninev
+			nine, ninev = eight, eightv
+			eight, eightv = seven, sevenv
+			seven, sevenv = curr, curv
+		} else if curv >= eightv && curv < sevenv {
+			ten, tenv = nine, ninev
+			nine, ninev = eight, eightv
+			eight, eightv = curr, curv
+		} else if curv >= ninev && curv < eightv {
+			ten, tenv = nine, ninev
+			nine, ninev = curr, curv
+		} else if curv >= tenv && curv < ninev {
+			ten, tenv = curr, curv
+		}
+	}
+	return fmt.Sprintf("```1:%v-%v\n2:%v-%v\n3:%v-%v\n4:%v-%v\n5:%v-%v\n6:%v-%v\n7:%v-%v\n8:%v-%v\n9:%v-%v\n10:%v-%v\n```", one, onev, two, twov, three, threev, four, fourv, five, fivev, six, sixv, seven, sevenv, eight, eightv, nine, ninev, ten, tenv)
+}
+
+type Player struct {
+	Id    string
+	Money int
+}
+
+func top10(s *discordgo.Session, m *discordgo.Message) string {
+	top := make([]*Player, 10)
+	files, _ := ioutil.ReadDir("bank/")
+	for _, f := range files {
+		name := f.Name()
+		money := getMoney(f.Name())
+		// Iterate over every file
+		for i := 0; i < len(top); i++ {
+			// We insert it here then
+			if top[i] == nil || money > top[i].Money {
+				// Move everything back once
+				// [100, 99, 55] turns into
+				// [x, 100, 99] where x is what we inserted (which has to be higher than 100 in this example)
+				for j := len(top) - 1; j > i; j-- {
+					top[j] = top[j-1]
+				}
+				// Assign it
+				top[i] = &Player{
+					Id:    name,
+					Money: money,
+				}
+				break
+			}
+		}
+	}
+	str := "```"
+	str += top10Str(top, s, m)
+	str += "```"
+	return str
+	//return fmt.Sprintf("1; %v | %v\n2; %v | %v\n3;%v | %v", top[0].Id, top[0].Money, top[1].Id, top[1].Money, top[2].Id, top[2].Money)
+}
+func top10Str(top10 []*Player, s *discordgo.Session, m *discordgo.Message) string {
+	str := ""
+	for k, v := range top10 {
+		if v == nil {
+			break
+		} //v.Id
+		channel, _ := s.Channel(m.ChannelID)
+
+		name, err := s.State.Member(channel.GuildID, v.Id)
+		namev := "OFFLINE:" + v.Id
+		if err == nil {
+			namev = name.User.Username
+		}
+		//namev := name.User.Username
+
+		str += fmt.Sprintf("%2d. %27s: %d\n", k+1, namev, v.Money)
+	}
+	return str
+}
+
+func setmoney(monies int, id string) {
+	err := ioutil.WriteFile("bank/"+id+"/money.txt", []byte(strconv.Itoa(monies)), 644) //try to deposit money into their account
+	if err != nil {
+		panic(err)
+	}
+
+}
